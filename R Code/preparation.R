@@ -50,6 +50,6 @@ names(df)[names(df) == "LDH"] <- "ldh"
 names(df)[names(df) == "Magnesium"] <- "mg"
 
 # 2. Saving----
-save(df, file = "./../Data/prep.RData")
+save(df, file = "./Data/prep.RData")
 
 

@@ -1,16 +1,16 @@
 # 0. Data, libraries and functions----
 ## 0.1 Loading data----
 #### imputed Data
-load(file = "./../Data/imputed dataset.Rda")
+load(file = "./Data/imputed dataset.Rda")
 
 #### Models
-load(file = "./../Data/models.Rda")
+load(file = "./Data/models.Rda")
 
 ## 0.2 Loading libraries----
-source("./libraries.R")
+source("./R Code/libraries.R")
 
 ## 0.3 Loading graphic parameters----
-source("./graphic_parameters.R")
+source("./R Code/graphic_parameters.R")
 
 # 1. Diagnostics----
 ## 1.1 Proportional hazard assumption----

@@ -1,15 +1,16 @@
 # 0. Data, libraries and functions----
 ## 0.1 Loading data----
-load(file = "./../Data/prep.RData")
+#load(file = "./Data/prep.RData")
+load(file = "./Data/pseudo_data.RData")
 
 ## 0.2 Loading functions----
-source("./functions.R")
+source("./R Code/functions.R")
 
 ## 0.3 Loading libraries----
-source("./libraries.R")
+source("./R Code/libraries.R")
 
 ## 0.4 Loading graphical values----
-source("./graphic_parameters.R")
+source("./R Code/graphic_parameters.R")
 
 # 1. Validation of Model----
 #### Formula for the saturated model----
@@ -167,6 +168,10 @@ p2 <- ggplot(res_plot_b, aes(x = cond, y = measurement, fill = cond))+
   ylab("integrated brier score")
 
 performance_plot <- cowplot::plot_grid(p1, p2, nrow = 2, align = "v")  
+
+pdf(width = pdf_w_h[1], height = pdf_w_h[2]*1.5, file = "./Plots/Performance_validated_cox.pdf")
+performance_plot
+dev.off()
 
 #### summary of the ibrier for the bic model 
 summary(res$brier_model.bic)
@@ -475,4 +480,4 @@ surv_val_bic
 #dev.off()
 
 save(opt_cut_aic, opt_cut_bic, surv_val_aic, surv_val_bic, performance_plot, res,
-     file = "./../Data/validation.Rda")
+     file = "./Data/validation.Rda")
