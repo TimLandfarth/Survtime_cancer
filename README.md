@@ -5,7 +5,7 @@ For the study, a Cox proportional hazard model was calculated on imputed, stacke
 
 The structure of the data and the code is as follows:
 
-- **Data**:  All required data
+- **Data**:
   - **cutoff.Rda**: Maximum cutoff of the linear predictor for the AIC (*max_cutoff_aic*) and BIC (*max_cutoff_bic*) model. Furthermore, the corresponding graph of the survival time curves for the two groups found (*cutoff_plot*; plot is included in Plots/Cutoffs.pdf)
   - **imputed dataset.Rda**: (*df_imp*) 20-fold stacked, imputed data set from the pseudo data
   - **models.Rda**: Original Coxph models, selected using AIC (*cox_aic*) and BIC (*cox_bic*)
