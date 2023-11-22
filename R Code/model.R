@@ -1,12 +1,13 @@
 # 0. Import data, libraries and functions----
 ## 0.1 Loading data----
-load(file = "./../Data/prep.RData")
+#load(file = "./Data/prep.RData")
+load(file = "./Data/pseudo_data.RData")
 
 ## 0.2 Loading functions----
-source("./functions.R")
+source("./R Code/functions.R")
 
 ## 0.3 libraries----
-source("./libraries.R")
+source("./R Code/libraries.R")
 
 # 1. Imputation of the data----
 # simultaneous imputation and rephrasing from list to dataframe
@@ -32,7 +33,7 @@ cox_bic <- step(cox_without, direction="forward",
 
 # 3. Saving ----
 ## 3.1 Models----
-save(cox_aic, cox_bic, file = "./../Data/models.Rda")
+save(cox_aic, cox_bic, file = "./Data/models.Rda")
 
 ## 3.2 Imputed dataset----
-save(df_imp, file = "./../Data/imputed dataset.Rda")
+save(df_imp, file = "./Data/imputed dataset.Rda")

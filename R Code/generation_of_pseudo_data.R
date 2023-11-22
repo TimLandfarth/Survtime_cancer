@@ -1,9 +1,9 @@
 # 0. Data, libraries----
 ## 0.1 Loading Data----
-load(file = "./../Data/prep.RData")
+load(file = "./Data/prep.RData")
 
 ## 0.2 Loading libraries----
-source("./libraries.R")
+source("./R Code/libraries.R")
 
 # 1. Generation of pseudo data----
 ## 1.1 metric parameters----
@@ -17,6 +17,7 @@ rm(temp)
 
 ## 1.2 Categorical parameters----
 df_pseudo$status <- sample(c("survival", "progressive disease"), nrow(df), replace = T)
+df_pseudo$status <- factor(df_pseudo$status)
 
 ## 1.3 Production of NAs in pseudo data----
 df_pseudo$leuc[which(is.na(df$leuc))] <- NA
@@ -36,5 +37,5 @@ rm(df)
 df <- df_pseudo
 
 ## 2. Saving----
-save(df, file = "./../Data/pseudo_data.RData")
+save(df, file = "./Data/pseudo_data.RData")
 

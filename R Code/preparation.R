@@ -1,10 +1,11 @@
 # 0. Dataset and libraries----
 ## 0.1 Loading libraries----
-source("./libraries.R")
+source("./R Code/libraries.R")
 
 ## 0.2 Loading dataset----
-df <- read_excel("./../Data/Blutwerte Score.xlsx", skip = 1)
-df <- as.data.frame(df)
+#df <- read_excel("./../Data/Blutwerte Score.xlsx", skip = 1)
+#df <- as.data.frame(df)
+load(file = "./Data/pseudo_data.RData")
 
 # 1.  Preparation----
 ## 1.1 Renaming----

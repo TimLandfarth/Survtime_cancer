@@ -13,5 +13,7 @@ suppressPackageStartupMessages(library(ggthemes))
 suppressPackageStartupMessages(library(survminer))
 suppressPackageStartupMessages(library(cowplot))
 suppressPackageStartupMessages(library(stringr))
+suppressPackageStartupMessages(library(faux))
+suppressPackageStartupMessages(library(EnvStats))
 
 
