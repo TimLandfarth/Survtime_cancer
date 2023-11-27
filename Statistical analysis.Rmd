@@ -1,0 +1,173 @@
+---
+title: "Statistical Analysis"
+#author: "Timotheus Landfarth"
+#date: "`r Sys.Date()`"
+output: 
+  html_document:
+   toc: true
+   toc_float: true
+bibliography: bib.bib
+biblio-style: authoryear
+link-citations: true
+citation_package: biblatex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+source("./R Code/libraries.R")
+library(knitr)
+library(stringr)
+library(broom)
+library(kableExtra)
+library(dplyr)
+library(survival)
+source("./R Code/graphic_parameters.R")
+```
+
+# Statistical Analysis
+## Descriptive
+The intention was to statistically investigate the influence of findings from the hemogram on the progression of tumor diseases within the new therapy using *describe new therapy in more detail here*. For this purpose, a survival time analysis was carried out using the Cox proportional hazard model.
+
+The parameters leukocytes, lymphocytes, neutrophil granulocytes, monocytes, eosinophil granulocytes, C-reactive protein (CRP), albumin, protein, lactate dehydrogenase (LDH) and magnesium were selected in advance and are listed in the following table.
+
+```{r coefoverview, echo=FALSE}
+load("./../../../../14. Semester/kleine wissenschaftliche Hausarbeit/original data.RData")
+sum <- data.frame(mean = sapply(df[-c(1:2)], function(x) mean(x, na.rm = T)),
+                  sd = sapply(df[-c(1:2)], function(x) sd(x, na.rm = T)))
+sum$out <- str_c(round(sum$mean,2), paste0("(", round(sum$sd,2), ")"), sep = " ")
+rownames(sum) <- c("leukocytes", "lymphocytes", "neutrophil granulocytes", "monocytes", "eosinophil granulocytes", "C-reactive protein", "albumin", "protein", "lactate dehydrogenase", "magnesium")
+colnames(sum) <- c("mean", "sd", "mean (sd)")
+
+kable(sum[1:2], digits = 2) %>%
+  kable_styling(full_width = F, htmltable_class = "lightable-minimal")
+
+```
+
+## Imputation
+As values from the hemogram were often missing, the data set had to be imputed for this purpose, whereby predictive mean matching (using the package `mice` [@one]) was used in advance for all metric parameters. For this type of imputation, the data set was imputed twenty times in a stack.
+
+## Model
+To calculate the Cox proportional hazard model, the selection of the formula was calculated using the AIC and BIC, corrected for the imputed data (more observations and proportion of imputed values), using forward selection, resulting in the following values: 
+
+
+```{r AICBICmodel, echo=FALSE}
+load("./Data/models.Rda")
+
+sum_cox_aic <- data.frame(summary(cox_aic)["coefficients"])
+
+colnames(sum_cox_aic) <- c("Covariate", "exp(Covariate)", "a", "b", "c")
+
+sum_cox_bic <- data.frame(summary(cox_bic)["coefficients"])
+
+sum_cox_bic <- rbind(round(sum_cox_bic[,1:2],2), data.frame("coefficients.coef" = rep(" ", 4),
+                              "coefficients.exp.coef." = rep(" ", 4)))
+rownames(sum_cox_bic) <- rownames(sum_cox_aic)
+colnames(sum_cox_bic) <- colnames(sum_cox_aic[,1:2])
+
+coef <- cbind(sum_cox_bic, sum_cox_aic[,1:2])
+rownames(coef) <- c("albumin", "lymphocytes", "lactate dehydrogenase", "monocytes", "eosinophil granulocytes")
+
+kable(coef, digits = 2, align = "rrrr") %>%
+  kable_styling(full_width = F, htmltable_class = "lightable-minimal") %>%
+  add_header_above(c(" " = 1,"BIC model" = 2, "AIC model" = 2))
+
+```
+In both cases, a higher albumin level is expected to lead to a lower risk of tumor progression.
+In the case of the AIC model, higher values for lymphocytes and eosinophil granulocytes are also expected to lead to a lower risk of tumor progression. 
+While lactate dehydrogenase has no expected effect on the risk, the expectation for the risk of tumor progression increases with higher levels of monocytes.     
+
+## Diagnostic
+To investigate whether the models also have proportional hazards (and thus whether the covariates are also independent of time), the Schoenfeld residuals were considered.
+If the Schoenfeld residuals are considered against time, the individual covariates scatter evenly over time around 0, which means that the proportional hazard assumption appears to be fulfilled.  
+
+```{r Diagnostic, echo=FALSE, fig.width=12,fig.height=14}
+load("./Data/models.Rda")
+load("./../../../../14. Semester/kleine wissenschaftliche Hausarbeit/Daten/imputed dataset.Rda")
+load("./Data/cutoff.Rda")
+
+
+plot_bic <- ggcoxzph(cox.zph(cox_bic), point.col = "#636363")
+plot_aic <- ggcoxzph(cox.zph(cox_aic), point.col = "#636363")
+
+
+plot_bic <- ggpar(plot_bic, font.x = c(10, "plain", "black"),
+      font.y = c(10, "plain", "black"),
+      font.caption = c(10, "plain", "black"),
+      font.title = c(10, "plain", "black"),
+      font.tickslab = c(8, "plain", "black"))
+
+plot_aic <- ggpar(plot_aic, font.x = c(10, "plain", "black"),
+      font.y = c(10, "plain", "black"),
+      font.caption = c(10, "plain", "black"),
+      font.title = c(10, "plain", "black"),
+      font.tickslab = c(8, "plain", "black"))
+
+lab_aic <- ggdraw() + draw_label("AIC model", fontface='bold')
+lab_bic <- ggdraw() + draw_label("BIC model", fontface='bold')
+
+cowplot::plot_grid(lab_bic, plot_bic[[1]], NULL, NULL, NULL, NULL, lab_aic, plot_aic[[1]], plot_aic[[2]], plot_aic[[3]], plot_aic[[4]], plot_aic[[5]], byrow = F, ncol = 2, labels = c("AIC", "BIC"), nrow = 6, hjust = -1.5, vjust = 0, rel_heights=c(0.1, 1, 1, 1, 1, 1, 0.1, 1, 1, 1, 1, 1))
+```
+
+The coefficients in both models are well distributed, lying at 0 on the one hand and scattering fairly evenly (except for the edges) on the other. 
+However In both cases, except for the monocytes, all covariates are significant (in some cases even strongly significant), so that the proportional hazard assumption may not apply.
+
+## Cutoff
+In order to divide patients into two groups, low risk and high risk, this division was made on the basis of the logrank statistics.
+
+The linear predictor for the AIC and BIC model was calculated for all observations, ordered (from minimum to maximum). Then, the first ordered observation and the remaining observations were divided into two groups and the logrank statistic was estimated. The two groups were then created based on the first two ordered observations, with the rest of the procedure as above. 
+
+After all logrank statistics were calculated, the classification that had the maximum logrank statistic was used.
+
+Since the best statistics were selected, the log rank test cannot be performed.
+
+For the AIC model, the maximum logrank statistic was at a cutoff value of the linear predictor of `r round(max_cutoff_aic, 2)` and for the BIC model at `r round(max_cutoff_bic, 2)`. 
+
+The survival curves took the following form:
+
+```{r Cutoff, echo=FALSE}
+cutoff_plot
+```
+
+
+
+## Validation
+
+Cross-validation was implemented to validate the data and thus to assess its quality.
+
+The validation was to take place on the basis of the model on the one hand and the cut-off values on the other.
+
+### Model
+The model was validated in the same way as described above. For this purpose, the data set was imputed five times and a five-fold cross-validation was performed on the basis of each data set generated. The Concordance Index (check whether the estimated risk from the model matches the event time for two patients) and the integrated Brier Score (mean square difference between prediction and observation) were used as performance measures. 
+
+```{r ValidationModel, echo=FALSE}
+load("./Data/validation.Rda")
+performance_plot
+```
+
+The performance measures are relatively similar for both models. The Cindex is small in both the AIC (`r round(mean(res$cindex_model.aic),2)` (`r round(sd(res$cindex_model.aic),2)`)) and BIC (`r round(mean(res$cindex_model.bic),2)` (`r round(sd(res$cindex_model.bic),2)`)) model. The Brier score, on the other hand, appears to be more optimistic for both models (AIC: `r round(mean(res$brier_model.aic),2)` (`r round(sd(res$brier_model.aic),2)`) and BIC: `r round(mean(res$brier_model.bic),2)` (`r round(sd(res$brier_model.bic),2)`)). 
+
+Since the performance measures for the different models are close to each other and even similar between the two selected models, the models appear to be valid. 
+
+### Cutoff
+The procedure described above was used to calculate the optimum cut-off. The data set was imputed five times and the best cutoff was calculated for each imputed data set based on the log rank statistics of the linear predictor. Five different cut-off values were obtained for the AIC and BIC models as follows: 
+
+```{r ValidationCutoff, echo=FALSE}
+
+kable(data.frame(AIC = opt_cut_aic, BIC = opt_cut_bic), digits = 2, align = "rr", caption = "Optimal cutoff Validation") %>%
+  kable_styling(full_width = F, htmltable_class = "lightable-minimal")
+
+```
+
+which thus provide survival time curves for the AIC model
+
+```{r ValidationCutoffaic, echo=FALSE}
+surv_val_aic
+```
+
+and the BIC model
+
+```{r ValidationCutoffbic, echo=FALSE}
+surv_val_bic
+```
+
+. It can be seen that the validity of the AIC model is generally better. Even though the differences from the smallest to the largest value in the AIC (`r round(abs(min(opt_cut_aic) - max(opt_cut_aic)),2)`) and BIC (`r round(abs(min(opt_cut_bic) - max(opt_cut_bic)),2)`) models are exactly the same, the survival time curves of the AIC models do not differ as much as in the BIC model.
