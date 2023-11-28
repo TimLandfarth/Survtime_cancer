@@ -33,5 +33,9 @@ The structure of the data and the code is as follows:
   - **preparation.R**: Required data: none. Preparation of the original data (not included here).
   - **validation.R**: Required data: *pseudo_data.RData*. Validation of the model and the cut-off values.
   
-  
+- **Report**
+  - **bib.bib**: Bibliography file for the Markdown file (*Statistical_analysis.Rmd*).
+  - **Statistical_analysis.html**: Report of the statistical analysis (*Statistical_analysis.Rmd*) in html format.
+  - **Statistical_analysis.pdf**: Report of the statistical analysis (*Statistical_analysis.pdf*) in pdf format.
+  - **Statistical_analysis.Rmd**: Report for the entire statistical analysis produced here in Markdown. 
 
