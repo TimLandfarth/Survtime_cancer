@@ -66,11 +66,11 @@ for(j in 1:10) {
       modcoxph_without <-
         coxph(Surv(time, as.numeric(status) - 1) ~ 1,
               data = dataimputedtrain,
-              x = T)
+              x = TRUE)
       
       #### Calculation of the saturated model with all covariates from the training data set
       modcoxph_saturated <-
-        coxph(as.formula(formula), data = dataimputedtrain, x = T)
+        coxph(as.formula(formula), data = dataimputedtrain, x = TRUE)
       
       #### Calculation of the forward AIC with corrected loglik (k)
       modcoxph_aic <-
@@ -79,7 +79,7 @@ for(j in 1:10) {
           direction = "forward",
           scope = list(lower = modcoxph_without, upper = modcoxph_saturated),
           k = 2 * length(dataimputedtrain) / mean(!is.na(dataimputedtrain[, !c(names(df) %in% c("status", "time"))])) ,
-          trace = F
+          trace = FALSE
         )
       
       #### Set the performance measures to zero 
@@ -105,7 +105,7 @@ for(j in 1:10) {
           direction = "forward",
           scope = list(lower = modcoxph_without, upper = modcoxph_saturated),
           k = log(nrow(dataimputedtrain)) * length(dataimputedtrain) / mean(!is.na(dataimputedtrain[, !c(names(dataimputedtrain) %in% c("status", "time"))])),
-          trace = F
+          trace = FALSE
         )
       
       #### Calculation of the Cindexes and the Brierscores for the calculated AIC model,
@@ -145,7 +145,7 @@ res_plot_b <- res_plot[res_plot$cond %in% c("brier_model.aic", "brier_model.bic"
 
 #### Boxplot for the different Models and Performances
 p1 <- ggplot(res_plot_c, aes(x = cond, y = measurement, fill = cond))+
-  geom_boxplot(show.legend = F)+
+  geom_boxplot(show.legend = FALSE)+
   theme_tufte()+
   theme(axis.line = element_line(color = gray2[1], linewidth = axissize),
         axis.ticks.x = element_blank(),
@@ -157,7 +157,7 @@ p1 <- ggplot(res_plot_c, aes(x = cond, y = measurement, fill = cond))+
   ylab("cindex")
 
 p2 <- ggplot(res_plot_b, aes(x = cond, y = measurement, fill = cond))+
-  geom_boxplot(show.legend = F)+
+  geom_boxplot(show.legend = FALSE)+
   theme_tufte()+
   theme(axis.line = element_line(color = gray2[1], linewidth = axissize),
         axis.ticks.x = element_blank())+
@@ -240,11 +240,11 @@ for (k in 1:K) {
   modcoxph_without <-
     coxph(Surv(time, as.numeric(status) - 1) ~ 1,
           data = dataimputedtrain,
-          x = T)
+          x = TRUE)
   
   #### Calculation of the saturated model with all covariates from the training data set
   modcoxph_saturated <-
-    coxph(as.formula(formula), data = dataimputedtrain, x = T)
+    coxph(as.formula(formula), data = dataimputedtrain, x = TRUE)
   
   #### Calculation of the forward AIC with corrected loglik (k)
   modcoxph_aic <-
@@ -253,7 +253,7 @@ for (k in 1:K) {
       direction = "forward",
       scope = list(lower = modcoxph_without, upper = modcoxph_saturated),
       k = 2 * length(dataimputedtrain) / mean(!is.na(dataimputedtrain[,!c(names(dataimputedtrain) %in% c("status", "time"))])) ,
-      trace = F
+      trace = FALSE
     )
   
   #### Predicting the model according to the AIC model
@@ -315,7 +315,7 @@ for (k in 1:K) {
       direction = "forward",
       scope = list(lower = modcoxph_without, upper = modcoxph_saturated),
       k = log(nrow(dataimputedtrain)) * length(dataimputedtrain) / mean(!is.na(dataimputedtrain[,!c(names(dataimputedtrain) %in% c("status", "time"))])),
-      trace = F
+      trace = FALSE
     )
   
   dataimputedtrain$predict_lp_bic <-

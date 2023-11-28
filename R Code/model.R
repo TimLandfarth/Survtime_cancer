@@ -19,7 +19,7 @@ df_imp <- do.call("rbind", imputedata(df, m = 20))
 cox_without <- coxph(Surv(time, as.numeric(status)-1) ~ 1, data = df_imp)
 formula <- "Surv(time, as.numeric(status)-1) ~ leuc + lymph + n_gran + mono + e_gran + crp + albumin + protein +
 ldh + mg"
-cox_saturated <- coxph(as.formula(formula), data = df_imp, ties = "efron", singular.ok = F)
+cox_saturated <- coxph(as.formula(formula), data = df_imp, ties = "efron", singular.ok = FALSE)
 
 ## 2.2 Calculating step AIC----
 cox_aic <- step(cox_without, direction="forward",
