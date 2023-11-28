@@ -19,7 +19,6 @@ source("./R Code/graphic_parameters.R")
 #### All co-variables should have a non-significant test.
 cox.zph(cox_aic)
 cox.zph(cox_bic)
-
 #### In both cases, except for the monocytes,
 #### all covariates are significant (in some cases even strongly significant),
 #### so that the proportional hazard assumption may not apply.

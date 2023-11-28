@@ -52,7 +52,6 @@ for(i in 1:length(unique(df_imp$predict_lp_aic))){
   #### on the logrank statistics.
   logrank_aic[i] <- survdiff(Surv(time, as.numeric(status)-1) ~ grp_aic, data = df_imp)$chisq
 }
-
 close(pb)
 rm(i)
 
@@ -65,7 +64,6 @@ max(logrank_aic)
 #### Selecting the groups that had the maximum logrank
 df_imp$grp_aic <- 1
 df_imp$grp_aic[df_imp$predict_lp_aic <= unique(df_imp$predict_lp_aic)[which(logrank_aic == max(logrank_aic))]] <- 0
-
 p1 <- survminer::ggsurvplot(survfit(Surv(time, as.numeric(status)-1) ~ grp_aic, data = df_imp),
                       xlim = c(0,2000))$plot+
   theme_tufte()+
@@ -97,7 +95,6 @@ set.seed(12345)
 
 #### For all observations in the imputed data set
 for(i in 1:length(unique(df_imp$predict_lp_bic))){
-  
   setTxtProgressBar(pb,i)
   
   #### All observations are first sorted into one group and then the first i 
@@ -111,7 +108,6 @@ for(i in 1:length(unique(df_imp$predict_lp_bic))){
   #### on the logrank statistics.
   logrank_bic[i] <- survdiff(Surv(time, as.numeric(status)-1) ~ grp_bic, data = df_imp)$chisq
 }
-
 close(pb)
 rm(i)
 
@@ -124,7 +120,6 @@ max(logrank_bic)
 #### Selecting the groups that had the maximum logrank
 df_imp$grp_bic <- 1
 df_imp$grp_bic[df_imp$predict_lp_bic <= unique(df_imp$predict_lp_bic)[which(logrank_bic == max(logrank_bic))]] <- 0
-
 p2 <- survminer::ggsurvplot(survfit(Surv(time, as.numeric(status)-1) ~ grp_bic, data = df_imp),
                       xlim = c(0,2000))$plot+
   theme_tufte()+
@@ -135,11 +130,9 @@ p2 <- survminer::ggsurvplot(survfit(Surv(time, as.numeric(status)-1) ~ grp_bic, 
   xlab("Time [days]")+
   scale_y_continuous(expand = c(0,0))+
   scale_x_continuous(expand = c(0,0))
-
 cutoff_plot <- cowplot::plot_grid(p1,p2, align = "hv", axis = "tblr", labels = c("AIC", "BIC"), hjust = -3, vjust = 2)
 max_cutoff_bic <- unique(df_imp$predict_lp_bic)[which(logrank_bic == max(logrank_bic))]
 max_cutoff_aic <- unique(df_imp$predict_lp_aic)[which(logrank_aic == max(logrank_aic))]
-
 #pdf(width = pdf_w_h[1]*2, height = pdf_w_h[2] ,file = "./../Plots/Cutoffs.pdf")
 cutoff_plot
 #dev.off()

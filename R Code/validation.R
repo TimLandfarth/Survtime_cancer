@@ -26,12 +26,10 @@ m = 20
 #### Variable generation for models from the BIC and AIC 
 #### and the performance measures Cindex and Integrated Brier Score
 cindex_model.aic <- cindex_model.bic <- brier_model.aic <- brier_model.bic <- NA
-
 set.seed(12345)
 
 #### Loop for the number of repetitions for the entire calculation
 for(j in 1:10) {
-  
   #### Variable generation for temporary variables for storing the Cindex,
   #### Ibrier for the models from AIC and BIC in each loop 
   cindex_model.aic._temp <- cindex_model.bic._temp <- NA
@@ -56,7 +54,6 @@ for(j in 1:10) {
     
     #### Cross-validation loop
     for (k in 1:K) {
-      
       #### m multiple imputation of the data set for the test data and the training data
       dataimputedtest <- imputedata(data = df[foldind == k, ], m = m)
       dataimputedtrain <-
@@ -88,7 +85,6 @@ for(j in 1:10) {
       #### Calculation of the Cindexes and the Brierscores for the calculated AIC model,
       #### for an imputed data set individually, across all imputed data sets.
       for (i in 1:length(dataimputedtest)) {
-        
         cindexs[i] <-
           SurvMetrics::Cindex(modcoxph_aic, predicted = dataimputedtest[[i]])
         briers[i] <- pec::crps(pec::pec(modcoxph_aic, formula = modcoxph_aic$formula, data = dataimputedtest[[i]]))[2]
@@ -122,10 +118,9 @@ for(j in 1:10) {
       setTxtProgressBar(pb,k)
       
     }
-    
     close(pb)
-    
   }
+  
   #### Combining the various individual performances for the two different models
   cindex_model.aic <- c(cindex_model.aic, cindex_model.aic._temp)
   cindex_model.bic <- c(cindex_model.bic, cindex_model.bic._temp)
@@ -155,7 +150,6 @@ p1 <- ggplot(res_plot_c, aes(x = cond, y = measurement, fill = cond))+
   scale_fill_manual(values = c("cindex_model.aic" = col_s[2], "cindex_model.bic" = col_s[4]))+
   xlab("")+
   ylab("cindex")
-
 p2 <- ggplot(res_plot_b, aes(x = cond, y = measurement, fill = cond))+
   geom_boxplot(show.legend = FALSE)+
   theme_tufte()+
@@ -166,13 +160,12 @@ p2 <- ggplot(res_plot_b, aes(x = cond, y = measurement, fill = cond))+
   scale_fill_manual(values = c("brier_model.aic" = col_s[2], "brier_model.bic" = col_s[4]))+
   xlab("")+
   ylab("integrated brier score")
-
 performance_plot <- cowplot::plot_grid(p1, p2, nrow = 2, align = "v")  
 
-pdf(width = pdf_w_h[1], height = pdf_w_h[2]*1.5, file = "./Plots/Performance_validated_cox.pdf")
+#pdf(width = pdf_w_h[1], height = pdf_w_h[2]*1.5, file = "./Plots/Performance_validated_cox.pdf")
 performance_plot
-dev.off()
-
+#dev.off()
+ 
 #### summary of the ibrier for the bic model 
 summary(res$brier_model.bic)
 
@@ -185,7 +178,6 @@ summary(res$cindex_model.bic)
 #### summary of the cindex for the aic model
 summary(res$cindex_model.aic)
 
-
 # 2. Validation of the cutoff values----
 #### Formula for the saturated model----
 formula <- "Surv(time, as.numeric(status)-1) ~ leuc + lymph + n_gran + mono + e_gran + crp + albumin + protein +
@@ -196,7 +188,6 @@ K = 5
 
 #### Number of multiple imputations
 m = 20
-
 cutpoints_BIC <- cutpoints_AIC <- list()
 plot_aic <- list()
 plot_bic <- list()
@@ -214,7 +205,6 @@ foldind <- makeCVdiv(data = df,
                      ncv = K)
 
 #### Cross-validation loop
-
 for (k in 1:K) {
   #### Small display to know which iteration you are in
   print(paste("loop = ", k*100/K, "%"))
@@ -226,16 +216,12 @@ for (k in 1:K) {
   dataimputedtrain <- df %>% mutate(grp_bic = NA)
   
   while (length(unique(dataimputedtest$grp_aic)) == 1 | length(unique(dataimputedtest$grp_bic)) == 1) {
-    #print(paste("AIC Gruppengröße : ", length(unique(dataimputedtest$grp_aic)),"  BIC Gruppengröße : ", length(unique(dataimputedtest$grp_bic))))
-
     #### m multiple imputation of the data set for the test data and the training data
     dataimputedtest <-
       do.call("rbind", imputedata(data = df[foldind == k,], m = 1))
     dataimputedtrain <-
       do.call("rbind", imputedata(data = df[foldind != k,], m = m))
     
-  
-  
   #### Calculation of the model without covariates from the training data set
   modcoxph_without <-
     coxph(Surv(time, as.numeric(status) - 1) ~ 1,
@@ -264,15 +250,13 @@ for (k in 1:K) {
   dataimputedtrain <-
     dataimputedtrain[order(dataimputedtrain$predict_lp_aic), ]
   
-  
   #### Generation of the parameter for determining the maximum logrank statistics
   logrank_aic <- NA
-  
   pb = txtProgressBar(min = 1, max = length(unique(dataimputedtrain$predict_lp_aic))-1, initial = 1) 
-  
   
   for (i in 1:(length(unique(dataimputedtrain$predict_lp_aic)) - 1)) {
     setTxtProgressBar(pb,i)
+    
     #### All observations are first sorted into one group and then the first i
     #### observations are sorted according to the linear predictor
     dataimputedtrain$grp_aic <- 1
@@ -286,7 +270,6 @@ for (k in 1:K) {
     logrank_aic[i] <-
       survdiff(Surv(time, as.numeric(status) - 1) ~ grp_aic, data = dataimputedtrain)$chisq
   }
-  
   close(pb)
   
   #### Selecting the groups that had the maximum logrank
@@ -299,14 +282,12 @@ for (k in 1:K) {
   dataimputedtest$grp_aic <- 1
   dataimputedtest$grp_aic[dataimputedtest$predict_lp_aic <= unique(dataimputedtrain$predict_lp_aic)[which(logrank_aic == max(logrank_aic))]] <-
     0
-  
-  plot_aic[[k]] <-
+    plot_aic[[k]] <-
     survminer::ggsurvplot(survfit(Surv(time, as.numeric(status) - 1) ~ grp_aic, data = dataimputedtest),
                           xlim = c(0,2000), break.x.by = 250)
-  opt_cut_aic[k] <-
+    opt_cut_aic[k] <-
     unique(dataimputedtrain$predict_lp_aic)[which(logrank_aic == max(logrank_aic))]
-  dat_imp_test_aic[[k]] <- dataimputedtest
-  
+    dat_imp_test_aic[[k]] <- dataimputedtest
   
   #### Calculation of the forward BIC with corrected loglik (k)
   modcoxph_bic <-
@@ -317,7 +298,6 @@ for (k in 1:K) {
       k = log(nrow(dataimputedtrain)) * length(dataimputedtrain) / mean(!is.na(dataimputedtrain[,!c(names(dataimputedtrain) %in% c("status", "time"))])),
       trace = FALSE
     )
-  
   dataimputedtrain$predict_lp_bic <-
     predict(modcoxph_bic, type = "lp")
   
@@ -330,7 +310,6 @@ for (k in 1:K) {
   
   #### Generation of the parameter for determining the maximum logrank statistics
   logrank_bic <- NA
-  
   pb = txtProgressBar(min = 1, max = length(unique(dataimputedtrain$predict_lp_bic))-1, initial = 1) 
 
   for (i in 1:(length(unique(dataimputedtrain$predict_lp_bic)) - 1)) {
@@ -350,9 +329,7 @@ for (k in 1:K) {
     logrank_bic[i] <-
       survdiff(Surv(time, as.numeric(status) - 1) ~ grp_bic, data = dataimputedtrain)$chisq
   }
-  
   close(pb)
-  
   #### Selecting the groups that had the maximum logrank
   dataimputedtest$predict_lp_bic <-
     predict(modcoxph_bic, newdata = dataimputedtest, type = "lp")

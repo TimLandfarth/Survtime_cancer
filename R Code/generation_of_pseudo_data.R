@@ -31,11 +31,9 @@ df_pseudo$protein[which(is.na(df$protein))] <- NA
 df_pseudo$ldh[which(is.na(df$ldh))] <- NA
 df_pseudo$mg[which(is.na(df$mg))] <- NA
 
-
 #### removing df and renaming df_pseudo to simply go through the entire code with the pseudo data set
 rm(df)
 df <- df_pseudo
 
 ## 2. Saving----
 save(df, file = "./Data/pseudo_data.RData")
-
