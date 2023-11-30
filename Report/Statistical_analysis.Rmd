@@ -57,7 +57,7 @@ This resulted in the following two models
 ```{r AICBICmodel, echo=FALSE}
 load("./../Data/models.Rda")
 sum_cox_aic <- data.frame(summary(cox_aic)["coefficients"])
-colnames(sum_cox_aic) <- c("Covariate", "exp(Covariate)", "a", "b", "c")
+colnames(sum_cox_aic) <- c("Covariable", "hazard ratio", "a", "b", "c")
 sum_cox_bic <- data.frame(summary(cox_bic)["coefficients"])
 sum_cox_bic <- rbind(round(sum_cox_bic[,1:2],3), data.frame("coefficients.coef" = rep(" ", 4),
                               "coefficients.exp.coef." = rep(" ", 4)))
@@ -73,33 +73,69 @@ kbl(coef, booktabs = T, digits = 3, position = "h", align = "rrrr") %>%
   kable_styling(position = "center", latex_options = "HOLD_position") %>%
     add_header_above(c(" " = 1,"BIC model" = 2, "AIC model" = 2))
 ```
-In both cases, a higher albumin level is expected to lead to a lower risk of survival.
+In both cases, a higher albumin level is expected to lead to a lower risk of tumor disease progression.
 In the case of the AIC model, higher values for lymphocytes and eosinophil granulocytes are also expected to lead to a lower risk of tumor progression. 
-While lactate dehydrogenase has no expected effect on the risk, the expectation for the risk of tumor progression increases with higher levels of monocytes.     
+While lactate dehydrogenase has a little expected effect on the risk (due to the high values), the expectation for the risk of tumor progression increases with higher levels of monocytes.     
 
 ## Diagnostic
 To investigate whether the models also have proportional hazards (and thus whether the covariates are also independent of time), the Schoenfeld residuals were considered.
 If the Schoenfeld residuals are considered against time, the individual covariates scatter evenly over time around zero, which means that the proportional hazard assumption appears to be fulfilled.  
 
 ```{r Diagnostic, echo=FALSE, fig.width=12,fig.height=14}
+
+
 load("./../Data/models.Rda")
 load("./../../../../../14. Semester/kleine wissenschaftliche Hausarbeit/Daten/imputed dataset.Rda")
 load("./../Data/cutoff.Rda")
 plot_bic <- ggcoxzph(cox.zph(cox_bic), point.col = "#636363")
+b1 <- ggplot_build(plot_bic[[1]])
+b1 <- b1$plot
+b1$labels$title <- ""
+
 plot_aic <- ggcoxzph(cox.zph(cox_aic), point.col = "#636363")
-plot_bic <- ggpar(plot_bic, font.x = c(10, "plain", "black"),
-      font.y = c(10, "plain", "black"),
-      font.caption = c(10, "plain", "black"),
-      font.title = c(10, "plain", "black"),
-      font.tickslab = c(8, "plain", "black"))
-plot_aic <- ggpar(plot_aic, font.x = c(10, "plain", "black"),
-      font.y = c(10, "plain", "black"),
-      font.caption = c(10, "plain", "black"),
-      font.title = c(10, "plain", "black"),
-      font.tickslab = c(8, "plain", "black"))
+a1 <- ggplot_build(plot_aic[[1]])
+a1 <- a1$plot
+a1$labels$title <- ""
+
+a2 <- ggplot_build(plot_aic[[2]])
+a2 <- a2$plot
+a2$labels$title <- ""
+
+a3 <- ggplot_build(plot_aic[[3]])
+a3 <- a3$plot
+a3$labels$title <- ""
+
+a4 <- ggplot_build(plot_aic[[4]])
+a4 <- a4$plot
+a4$labels$title <- ""
+
+a5 <- ggplot_build(plot_aic[[5]])
+a5 <- a5$plot
+a5$labels$title <- ""
+
+#plot_bic <- ggpar(plot_bic, font.x = c(10, "plain", "black"),
+#      font.y = c(10, "plain", "black"),
+#      font.caption = c(10, "plain", "black"),
+#      font.title = c(10, "plain", "black"),
+#      font.tickslab = c(8, "plain", "black"))
+#plot_aic <- ggpar(plot_aic, font.x = c(10, "plain", "black"),
+#      font.y = c(10, "plain", "black"),
+#      font.caption = c(10, "plain", "black"),
+#      font.title = c(10, "plain", "black"),
+#      font.tickslab = c(8, "plain", "black"))
+
+#plot_aic <- ggpar(plot_aic, font.x = 0,
+#      font.y = 0,
+#      font.caption = 0,
+#      font.title = 0,
+#      font.tickslab = 0,
+#      font.submain = 0,
+#      font.main = 0,
+#      font.subtitle = 0)
+
 lab_aic <- ggdraw() + draw_label("AIC model", fontface='bold')
 lab_bic <- ggdraw() + draw_label("BIC model", fontface='bold')
-cowplot::plot_grid(lab_bic, plot_bic[[1]], NULL, NULL, NULL, NULL, lab_aic, plot_aic[[1]], plot_aic[[2]], plot_aic[[3]], plot_aic[[4]], plot_aic[[5]], byrow = F, ncol = 2, labels = c("AIC", "BIC"), nrow = 6, hjust = -1.5, vjust = 0, rel_heights=c(0.1, 1, 1, 1, 1, 1, 0.1, 1, 1, 1, 1, 1))
+cowplot::plot_grid(lab_bic, b1, NULL, NULL, NULL, NULL, lab_aic, a1, a2, a3, a4, a5, byrow = F, ncol = 2, labels = c("AIC", "BIC"), nrow = 6, hjust = -1.5, vjust = 0, rel_heights=c(0.1, 1, 1, 1, 1, 1, 0.1, 1, 1, 1, 1, 1))
 ```
 
 The coefficients scatter evenly around zero in both models (except at the edges). However, in the score test with the null hypothesis that there is no slope of the covariates against time, all covariates except monocytes are significant in both cases (in some cases even strongly significant), so that the proportionality assumption may not apply.
@@ -115,17 +151,15 @@ For the AIC model, the maximum logrank statistic was at a cutoff value of the li
 
 The survival curves took the following form:
 
+
 ```{r Cutoff, echo=FALSE}
 cutoff_plot
 # Since two groups were created using the linear predictor, over- or under-optimistic multiply imputed values can result in 
 
 ```
 
-In the case of the AIC model, a good separation between the two groups can be recognized, while in the BIC model the separation is barely visible. In both cases, however, it must be explicitly warned that these can be over- and/or underoptimistic.
 
-Lieber Herr Hornung, ich weiß leider einfach nicht, warum dies so ist. Mir ist dabei nur eingefallen, dass:
-- die imputierten Werte zu optimistisch (oder pessimistisch) gezogen wurden (optimistisch: zu nahe an kleinem Risiko; pessimistisch: Normalverteilungsannahme unter pamm bricht)
-- Modellselektion: AIC: bessere Trennung aufgrund von mehr Kovariablen (also vermeintlich genauer); BIC: schlechtere Trennung aufgrund von weniger Kovariablen (also vermeintlich ungenauer)
+In the case of the AIC model, a good separation between the two groups can be recognized, while in the BIC model the separation is barely visible. In both cases, however, it must be expressly warned that these may be too optimistic. This is because the same data is used to estimate both the model and the cut-off values, which can lead to overfitting.
 
 ## Validation
 
@@ -139,10 +173,8 @@ The mean value and standard deviation of the concordance index and integrated br
 
 ```{r ValidationModel, echo=FALSE}
 load("./../Data/validation.Rda")
-perf <- data.frame(AIC = as.character(c(paste(round(mean(res$cindex_model.aic),3), " (", round(sd(res$cindex_model.aic),3), ")", sep = ""),
-                              paste(round(mean(res$brier_model.aic),3), " (", round(sd(res$brier_model.aic),3), ")", sep = ""))),
-           BIC = as.character(c(paste(round(mean(res$cindex_model.bic),3), " (", round(sd(res$cindex_model.bic),3), ")", sep = ""),
-                              paste(round(mean(res$brier_model.bic),3), " (", round(sd(res$brier_model.bic),3), ")", sep = ""))))
+perf <- data.frame(AIC = c(round(mean(res$cindex_model.aic),3), round(mean(res$brier_model.aic),3)),
+           BIC = c(round(mean(res$cindex_model.bic),3), round(mean(res$brier_model.bic),3)))
 rownames(perf) <- c("Concordance Index", "Integrated brier Score")
 colnames(perf) <- c("AIC model", "BIC model")
 kbl(perf, booktabs = T, digits = 3, position = "h", align = "rrrr") %>%
