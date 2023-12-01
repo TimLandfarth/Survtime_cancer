@@ -143,7 +143,7 @@ The coefficients scatter evenly around zero in both models (except at the edges)
 ## Cutoff
 In order to divide patients into two groups, low risk and high risk, this division was made on the basis of the logrank statistics.
 
-The linear predictor for the AIC and BIC model was calculated for all observations and ordered (from minimum to maximum). Then, the first ordered observation and the remaining observations were divided into two groups and the logrank statistic was estimated. In the next step the two groups were then created based on the first two ordered observations, with the rest of the procedure as above. This procedure was repeated until the logrank statistics were estimated once for all ordered groups. 
+The linear predictor for the above AIC and BIC model was calculated for all observations and ordered (from minimum to maximum). Then, the first ordered observation and the remaining observations were divided into two groups and the logrank statistic was estimated. In the next step the two groups were then created based on the first two ordered observations, with the rest of the procedure as above. This procedure was repeated until the logrank statistics were estimated once for all groups. 
 
 After all logrank statistics were calculated, the classification that had the maximum logrank statistic was used. Thus, the optimal cutoff of the linear predictor is the mean between the highest linear predictor of the ordered lower group and the lowest linear predictor of the ordered upper group. Since the best statistics were selected, the log rank test cannot be performed.
 
@@ -159,7 +159,7 @@ cutoff_plot
 ```
 
 
-In the case of the AIC model, a good separation between the two groups can be recognized, while in the BIC model the separation is barely visible. In both cases, however, it must be expressly warned that these may be too optimistic. This is because the same data is used to estimate both the model and the cut-off values, which can lead to overfitting.
+In the case of the AIC model, a good separation between the two groups can be recognized, while in the BIC model the separation is barely visible. However, it must be expressly warned that these may be too optimistic. This is because the same data is used to estimate both the model and the cut-off values, which can lead to overfitting.
 
 ## Validation
 
@@ -167,7 +167,7 @@ Cross-validation was implemented to validate the models and thus to assess its q
 The validation was to take place on the basis of the model on the one hand and the cut-off values on the other.
 
 ### Model
-For validation, a 5-fold simple cross-validation was repeated ten times with 20-fold multiple imputation. Outside the cross-validation, the original data set was divided into test and training data, while within the cross-validation the test and training data were imputed. Variables were selected on the imputed training data using AIC and BIC (taking into account formula $\frac{M}{1-f}$ described above). The Concordance Index (discrimination) and the integrated Brier Score (calibration) were calculated on each imputed test data set of the twenty-fold imputation using the partial test data and the mean value of the Concordance Index and Brier Score was estimated over the twenty imputations.
+For validation, a 5-fold simple cross-validation was repeated ten times with 20-fold multiple imputation. Outside the cross-validation, the original data set was divided into test and training data, while within the cross-validation the test and training data were imputed. Variables were selected on the imputed training data using AIC and BIC (taking into account factor $\frac{M}{1-f}$ described above). The Concordance Index (discrimination) and the integrated Brier Score (calibration) were calculated on each imputed test data set of the twenty-fold imputation using the partial test data and the mean value of the Concordance Index and Brier Score was estimated over the twenty imputations.
 
 The mean value and standard deviation of the concordance index and integrated brier score across all repetitions and the cross-validation can be seen in the following table.
 
