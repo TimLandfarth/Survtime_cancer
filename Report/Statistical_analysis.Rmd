@@ -30,19 +30,20 @@ source("./../R Code/graphic_parameters.R")
 ## Descriptive
 The aim was to estimate a prognostic model for the risk of tumor disease progression using the findings from the hemogram. For this purpose, a survival time analysis was carried out using the Cox proportional hazard model.
 
-The parameters leukocytes, lymphocytes, neutrophil granulocytes, monocytes, eosinophil granulocytes, C-reactive protein (CRP), albumin, protein, lactate dehydrogenase (LDH) and magnesium were selected in advance and are listed in the following table.
+
 
 ```{r coefoverview, echo=FALSE}
-load("./../../../../../14. Semester/kleine wissenschaftliche Hausarbeit/original data.RData")
-sum <- data.frame(mean = sapply(df[-c(1:2)], function(x) mean(x, na.rm = T)),
-                  sd = sapply(df[-c(1:2)], function(x) sd(x, na.rm = T)))
-sum$out <- str_c(round(sum$mean,2), paste0("(", round(sum$sd,2), ")"), sep = " ")
-rownames(sum) <- c("leukocytes", "lymphocytes", "neutrophil granulocytes", "monocytes", "eosinophil granulocytes", "C-reactive protein", "albumin", "protein", "lactate dehydrogenase", "magnesium")
-colnames(sum) <- c("mean", "sd", "mean (sd)")
+#The parameters leukocytes, lymphocytes, neutrophil granulocytes, monocytes, eosinophil granulocytes, C-reactive protein (CRP), albumin, protein, lactate dehydrogenase (LDH) and magnesium were selected in advance and are listed in the following table.
+#load("./../../../../../14. Semester/kleine wissenschaftliche Hausarbeit/original data.RData")
+#sum <- data.frame(mean = sapply(df[-c(1:2)], function(x) mean(x, na.rm = T)),
+#                  sd = sapply(df[-c(1:2)], function(x) sd(x, na.rm = T)))
+#sum$out <- str_c(round(sum$mean,2), paste0("(", round(sum$sd,2), ")"), sep = " ")
+#rownames(sum) <- c("leukocytes", "lymphocytes", "neutrophil granulocytes", "monocytes", "eosinophil granulocytes", #"C-reactive protein", "albumin", "protein", "lactate dehydrogenase", "magnesium")
+#colnames(sum) <- c("mean", "sd", "mean (sd)")
 #kable(sum[1:2], digits = 2) %>%
 #  kable_styling(full_width = F, htmltable_class = "lightable-minimal")
-kbl(sum[1:2], booktabs = T, digits = 2, position = "h") %>%
-  kable_styling(position = "center", latex_options = "HOLD_position")
+#kbl(sum[1:2], booktabs = T, digits = 2, position = "h") %>%
+#  kable_styling(position = "center", latex_options = "HOLD_position")
 ```
 
 ## Imputation
@@ -149,17 +150,15 @@ After all logrank statistics were calculated, the classification that had the ma
 
 For the AIC model, the maximum logrank statistic was at a cutoff value of the linear predictor of `r round(max_cutoff_aic, 2)` and for the BIC model at `r round(max_cutoff_bic, 2)`. 
 
-The survival curves took the following form:
 
 
 ```{r Cutoff, echo=FALSE}
-cutoff_plot
+#The survival curves took the following form:
+#cutoff_plot
 # Since two groups were created using the linear predictor, over- or under-optimistic multiply imputed values can result in 
-
+# In the case of the AIC model, a good separation between the two groups can be recognized, while in the BIC model the separation is barely visible. However, it must be expressly warned that these may be too optimistic. This is because the same data is used to estimate both the model and the cut-off values, which can lead to overfitting.
 ```
 
-
-In the case of the AIC model, a good separation between the two groups can be recognized, while in the BIC model the separation is barely visible. However, it must be expressly warned that these may be too optimistic. This is because the same data is used to estimate both the model and the cut-off values, which can lead to overfitting.
 
 ## Validation
 
